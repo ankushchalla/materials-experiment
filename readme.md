@@ -13,4 +13,10 @@ npm run dev
 npm run build
 ```
 
+**2. Refrences**
+
+The following sources helped me build this:
+
+- [Bruno Simon's awesome course on three.js](https://threejs-journey.com/)
+
 ![Animation](./Cool_Materials.gif)
