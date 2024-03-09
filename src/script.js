@@ -8,7 +8,7 @@ import GUI from 'lil-gui'
 const loadingManager = new THREE.LoadingManager()
 const textureLoader = new THREE.TextureLoader(loadingManager)
 const matcapFiles = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11']
-const matcapTextures = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11']
+const matcapTextures = matcapFiles
     .map(textureNum => textureLoader.load(`/textures/matcaps/${textureNum}.png`))
 
 /**
