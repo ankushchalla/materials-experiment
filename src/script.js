@@ -7,6 +7,7 @@ import GUI from 'lil-gui'
  */
 const loadingManager = new THREE.LoadingManager()
 const textureLoader = new THREE.TextureLoader(loadingManager)
+const particleTexture = textureLoader.load('/textures/particles/1.png')
 const matcapFiles = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11']
 const matcapTextures = matcapFiles
     .map(textureNum => textureLoader.load(`/textures/matcaps/${textureNum}.png`))
@@ -14,25 +15,49 @@ const matcapTextures = matcapFiles
 /**
  * Base
  */
-
 // Object
 const geometry = new THREE.TorusKnotGeometry(10, 1, 100, 16)
 const material = new THREE.MeshNormalMaterial()
 const torusKnot = new THREE.Mesh(geometry, material);
 
+const particlesMaterial = new THREE.PointsMaterial()
+particlesMaterial.map = particleTexture
+particlesMaterial.size = 0.3
+particlesMaterial.sizeAttenuation = true
+const particles = new THREE.Points(geometry, particlesMaterial)
+
 // Debug
 const parameters = {
-    material: "0"
+    material: "0",
+    particles: false
 }
 
 const gui = new GUI()
 gui.add(parameters, 'material', ['0', ...matcapFiles])
     .onChange(v => {
         torusKnot.material.dispose()
+        particles.material.dispose()
         if (v === '0') {
             torusKnot.material = new THREE.MeshNormalMaterial()
+            torusKnot.material = new THREE.PointsMaterial()
+            particlesMaterial.map = particleTexture
+            particlesMaterial.size = 0.3
+            particlesMaterial.sizeAttenuation = true
         } else {
             torusKnot.material = new THREE.MeshMatcapMaterial({ matcap: matcapTextures[parseInt(v) - 1] })
+            particlesMaterial.map = matcapTextures[parseInt(v) - 1]
+            particlesMaterial.size = 0.3
+            particlesMaterial.sizeAttenuation = true
+        }
+    })
+gui.add(parameters, 'particles')
+    .onChange(showParticles => {
+        if (showParticles) {
+            scene.remove(torusKnot)
+            scene.add(particles)
+        } else {
+            scene.remove(particles)
+            scene.add(torusKnot)
         }
     })
 
@@ -98,7 +123,7 @@ let increment = true
 let p = 2
 const tick = () => {
     const elapsedTime = clock.getElapsedTime()
-    
+
     if (elapsedTime > seconds) {
         seconds += interval
         if (increment) {
@@ -108,10 +133,13 @@ const tick = () => {
             p--
             if (p === 1) increment = true
         }
+        const q = Math.random() * p
         torusKnot.geometry.dispose()
-        torusKnot.geometry = new THREE.TorusKnotGeometry(10, 1, 100, 16, p, Math.random() * p)
+        particles.geometry.dispose()
+        torusKnot.geometry = new THREE.TorusKnotGeometry(10, 1, 100, 16, p, q)
+        particles.geometry = new THREE.TorusKnotGeometry(10, 1, 100, 16, p, q)
     }
-    
+
     // Update controls
     controls.update()
 
